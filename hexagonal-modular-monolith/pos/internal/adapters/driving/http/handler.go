@@ -1,12 +1,13 @@
 package http
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"pos/internal/modules/inventory"
 	"pos/internal/modules/orders"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type HTTPHandler struct {
@@ -21,11 +22,12 @@ func NewHTTPHandler(os orders.OrderService, is inventory.InventoryService) *HTTP
 	}
 }
 
-func (h *HTTPHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/order/create", h.handleCreateOrder)
-	mux.HandleFunc("/order/get", h.handleGetOrder)
-	mux.HandleFunc("/product/add", h.handleAddProduct)
-	mux.HandleFunc("/product/get", h.handleGetProduct)
+func (h *HTTPHandler) RegisterRoutes(gin *gin.Engine) {
+	gin.POST("/order/create", h.handleCreateOrder)
+	gin.GET("/order/get", h.handleGetOrder)
+	gin.POST("/product/add", h.handleAddProduct)
+	gin.GET("/product/get", h.handleGetProduct)
+	gin.GET("/product/all", h.handleGetAllProducts)
 }
 
 type CreateOrderRequest struct {
@@ -40,10 +42,10 @@ type AddProductRequest struct {
 	Stock int     `json:"stock"`
 }
 
-func (h *HTTPHandler) handleCreateOrder(w http.ResponseWriter, r *http.Request) {
+func (h *HTTPHandler) handleCreateOrder(c *gin.Context) {
 	var req CreateOrderRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httpError(w, "invalid request body", http.StatusBadRequest)
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 	log.Printf("HTTP Adapter: Received CreateOrder request for customer %s", req.CustomerID)
@@ -52,68 +54,67 @@ func (h *HTTPHandler) handleCreateOrder(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		log.Printf("HTTP Adapter: CreateOrder failed: %v", err)
 		if strings.Contains(err.Error(), "not enough stock") {
-			httpError(w, err.Error(), http.StatusConflict)
+			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
-		httpError(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	jsonResponse(w, order, http.StatusCreated)
+	c.JSON(http.StatusCreated, order)
 }
 
-func (h *HTTPHandler) handleGetOrder(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+func (h *HTTPHandler) handleGetOrder(c *gin.Context) {
+	id := c.Query("id")
 	if id == "" {
-		httpError(w, "missing id parameter", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing id parameter"})
 		return
 	}
 	log.Printf("HTTP Adapter: Received GetOrder request for ID %s", id)
 	order, err := h.orderSvc.GetOrderByID(id)
 	if err != nil {
-		httpError(w, err.Error(), http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	jsonResponse(w, order, http.StatusOK)
+	c.JSON(http.StatusOK, order)
 }
 
-func (h *HTTPHandler) handleAddProduct(w http.ResponseWriter, r *http.Request) {
+func (h *HTTPHandler) handleAddProduct(c *gin.Context) {
 	var req AddProductRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httpError(w, "invalid request body", http.StatusBadRequest)
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	log.Printf("HTTP Adapter: Received AddProduct request for %s", req.Name)
 	product, err := h.inventorySvc.AddProduct(req.Name, req.Price, req.Stock)
 	if err != nil {
-		httpError(w, err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	jsonResponse(w, product, http.StatusCreated)
+	c.JSON(http.StatusCreated, product)
 }
 
-func (h *HTTPHandler) handleGetProduct(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+func (h *HTTPHandler) handleGetProduct(c *gin.Context) {
+	id := c.Query("id")
 	if id == "" {
-		httpError(w, "missing id parameter", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing id parameter"})
 		return
 	}
 	log.Printf("HTTP Adapter: Received GetProduct request for ID %s", id)
 	product, err := h.inventorySvc.GetProduct(id)
 	if err != nil {
-		httpError(w, err.Error(), http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	jsonResponse(w, product, http.StatusOK)
+	c.JSON(http.StatusOK, product)
 }
 
-func httpError(w http.ResponseWriter, message string, code int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]string{"error": message})
-}
-
-func jsonResponse(w http.ResponseWriter, data interface{}, code int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(data)
+func (h *HTTPHandler) handleGetAllProducts(c *gin.Context) {
+	log.Printf("HTTP Adapter: Received GetAllProducts request")
+	products, err := h.inventorySvc.GetAllProducts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, products)
 }

@@ -39,6 +39,27 @@ func (a *InMemoryAdapter) GetProduct(id string) (*inventory.Product, error) {
 	return product, nil
 }
 
+func (a *InMemoryAdapter) GetAllProducts() ([]*inventory.Product, error) {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	products := make([]*inventory.Product, 0, len(a.products))
+	for _, product := range a.products {
+		products = append(products, product)
+	}
+	return products, nil
+}
+
+func (a *InMemoryAdapter) GetProductByName(name string) (*inventory.Product, error) {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	for _, product := range a.products {
+		if product.Name == name {
+			return product, nil
+		}
+	}
+	return nil, fmt.Errorf("product with name %s not found in DB", name)
+}
+
 func (a *InMemoryAdapter) UpdateProductStock(id string, newStock int) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()

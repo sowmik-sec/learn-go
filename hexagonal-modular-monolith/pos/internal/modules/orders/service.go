@@ -12,7 +12,7 @@ type orderService struct {
 	invSvc      InventoryServicePort
 }
 
-func NewOrderService(or OrderRepository, pg PaymentGateway, is InventoryServicePort) OrderService {
+func NewOrderService(or OrderRepository, pg PaymentGateway, is InventoryServicePort) *orderService {
 	return &orderService{
 		orderRepo:   or,
 		paymentGate: pg,

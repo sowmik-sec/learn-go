@@ -12,13 +12,18 @@ type inventoryService struct {
 	repo ProductRepository
 }
 
-func NewInventoryService(repo ProductRepository) InventoryService {
+func NewInventoryService(repo ProductRepository) *inventoryService {
 	return &inventoryService{repo: repo}
 }
 
 func (s *inventoryService) AddProduct(name string, price float64, stock int) (*Product, error) {
 	if name == "" || price <= 0 || stock < 0 {
 		return nil, errors.New("invalid product data")
+	}
+	// Check for duplicate product name
+	_, err := s.repo.GetProductByName(name)
+	if err == nil {
+		return nil, fmt.Errorf("product with name '%s' already exists", name)
 	}
 	product := &Product{
 		ID:    uuid.NewString(),
@@ -36,6 +41,11 @@ func (s *inventoryService) AddProduct(name string, price float64, stock int) (*P
 func (s *inventoryService) GetProduct(id string) (*Product, error) {
 	log.Printf("INVENTORY Module: Getting Product %s", id)
 	return s.repo.GetProduct(id)
+}
+
+func (s *inventoryService) GetAllProducts() ([]*Product, error) {
+	log.Printf("INVENTORY Module: Getting all products")
+	return s.repo.GetAllProducts()
 }
 
 func (s *inventoryService) UpdateStock(items []OrderItem) error {
