@@ -3,6 +3,7 @@ package http
 import (
 	"log"
 	"net/http"
+	"pos/internal/modules/auth"
 	"pos/internal/modules/inventory"
 	"pos/internal/modules/orders"
 	"strings"
@@ -10,24 +11,111 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type HTTPHandler struct {
-	orderSvc     orders.OrderService
-	inventorySvc inventory.InventoryService
+type LoginRequest struct {
+	EmailOrUsername string `json:"email_or_username" binding:"required"`
+	Password        string `json:"password" binding:"required"`
 }
 
-func NewHTTPHandler(os orders.OrderService, is inventory.InventoryService) *HTTPHandler {
+type RegisterRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type AuthResponse struct {
+	User  *auth.User `json:"user"`
+	Token string     `json:"token"`
+}
+
+type HTTPHandler struct {
+	orderSvc       orders.OrderService
+	inventorySvc   inventory.InventoryService
+	authSvc        auth.AuthService
+	authMiddleware *AuthMiddleware
+}
+
+func NewHTTPHandler(os orders.OrderService, is inventory.InventoryService, as auth.AuthService, am *AuthMiddleware) *HTTPHandler {
 	return &HTTPHandler{
-		orderSvc:     os,
-		inventorySvc: is,
+		orderSvc:       os,
+		inventorySvc:   is,
+		authSvc:        as,
+		authMiddleware: am,
 	}
 }
-
 func (h *HTTPHandler) RegisterRoutes(gin *gin.Engine) {
-	gin.POST("/order/create", h.handleCreateOrder)
-	gin.GET("/order/get", h.handleGetOrder)
-	gin.POST("/product/add", h.handleAddProduct)
-	gin.GET("/product/get", h.handleGetProduct)
-	gin.GET("/product/all", h.handleGetAllProducts)
+	// Auth routes (no auth required)
+	gin.POST("/auth/login", h.handleLogin)
+	gin.POST("/auth/register", h.handleRegister)
+
+	// Protected routes with RBAC
+	auth := h.authMiddleware.RequireAuth()
+
+	// Order routes - require authentication + specific permissions
+	gin.POST("/order/create", auth, h.authMiddleware.RequirePermission("order", "create"), h.handleCreateOrder)
+	gin.GET("/order/get", auth, h.authMiddleware.RequirePermission("order", "read"), h.handleGetOrder)
+
+	// Product routes - different permissions for different actions
+	gin.POST("/product/add", auth, h.authMiddleware.RequirePermission("product", "create"), h.handleAddProduct)
+	gin.GET("/product/get", auth, h.authMiddleware.RequirePermission("product", "read"), h.handleGetProduct)
+	gin.GET("/product/all", auth, h.authMiddleware.RequirePermission("product", "read"), h.handleGetAllProducts)
+}
+
+func (h *HTTPHandler) handleLogin(c *gin.Context) {
+	log.Printf("Login: Received login request for: %s", c.Request.URL.Path)
+	var req LoginRequest
+	if err := c.BindJSON(&req); err != nil {
+		log.Printf("Login: Failed to bind JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+	log.Printf("Login: Parsed request - email/username: %s", req.EmailOrUsername)
+
+	user, err := h.authSvc.AuthenticateUser(c.Request.Context(), req.EmailOrUsername, req.Password)
+	if err != nil {
+		log.Printf("Login: Authentication failed: %v", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
+	token, err := h.authMiddleware.GenerateToken(user)
+	if err != nil {
+		log.Printf("Login: Token generation failed: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
+		return
+	}
+
+	log.Printf("Login: Success for user %s", user.Username)
+	c.JSON(http.StatusOK, AuthResponse{
+		User:  user,
+		Token: token,
+	})
+}
+
+func (h *HTTPHandler) handleRegister(c *gin.Context) {
+	var req RegisterRequest
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+
+	// Create user through auth service
+	user, err := h.authSvc.CreateUser(c.Request.Context(), req.Email, req.Username, req.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Generate JWT token
+	token, err := h.authMiddleware.GenerateToken(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, AuthResponse{
+		User:  user,
+		Token: token,
+	})
 }
 
 type CreateOrderRequest struct {

@@ -1,0 +1,88 @@
+2025/11/11 18:28:33 --- Starting Hexagonal Modular Monolith POS ---
+[Fx] PROVIDE	fx.Lifecycle <= go.uber.org/fx.New.func1()
+[Fx] PROVIDE	fx.Shutdowner <= go.uber.org/fx.(*App).shutdowner-fm()
+[Fx] PROVIDE	fx.DotGraph <= go.uber.org/fx.(*App).dotGraph-fm()
+[Fx] PROVIDE	inventory.ProductRepository <= fx.Annotate(pos/internal/adapters/driven/db.NewInMemoryAdapter(), fx.As([[inventory.ProductRepository] [orders.OrderRepository] [auth.UserRepository] [auth.RoleRepository]])
+[Fx] PROVIDE	orders.OrderRepository <= fx.Annotate(pos/internal/adapters/driven/db.NewInMemoryAdapter(), fx.As([[inventory.ProductRepository] [orders.OrderRepository] [auth.UserRepository] [auth.RoleRepository]])
+[Fx] PROVIDE	auth.UserRepository <= fx.Annotate(pos/internal/adapters/driven/db.NewInMemoryAdapter(), fx.As([[inventory.ProductRepository] [orders.OrderRepository] [auth.UserRepository] [auth.RoleRepository]])
+[Fx] PROVIDE	auth.RoleRepository <= fx.Annotate(pos/internal/adapters/driven/db.NewInMemoryAdapter(), fx.As([[inventory.ProductRepository] [orders.OrderRepository] [auth.UserRepository] [auth.RoleRepository]])
+[Fx] PROVIDE	*db.InMemoryAdapter[name = "seeder"] <= fx.Annotate(pos/internal/adapters/driven/db.NewInMemoryAdapter(), fx.ResultTags(["name:\"seeder\""])
+[Fx] PROVIDE	orders.PaymentGateway <= fx.Annotate(pos/internal/adapters/driven/payment.NewMockPaymentGateway(), fx.As([[orders.PaymentGateway]])
+[Fx] PROVIDE	inventory.InventoryService <= fx.Annotate(pos/internal/modules/inventory.NewInventoryService(), fx.As([[inventory.InventoryService] [orders.InventoryServicePort]])
+[Fx] PROVIDE	orders.InventoryServicePort <= fx.Annotate(pos/internal/modules/inventory.NewInventoryService(), fx.As([[inventory.InventoryService] [orders.InventoryServicePort]])
+[Fx] PROVIDE	orders.OrderService <= fx.Annotate(pos/internal/modules/orders.NewOrderService(), fx.As([[orders.OrderService]])
+[Fx] PROVIDE	auth.AuthService <= pos/internal/modules/auth.NewAuthService()
+[Fx] PROVIDE	string <= main.main.func1()
+[Fx] PROVIDE	*http.AuthMiddleware <= pos/internal/adapters/driving/http.NewAuthMiddleware()
+[Fx] PROVIDE	*http.HTTPHandler <= pos/internal/adapters/driving/http.NewHTTPHandler()
+[Fx] PROVIDE	*gin.Engine <= main.main.func2()
+[Fx] INVOKE		fx.Annotate(main.startServer(), fx.ParamTags(["" "" "name:\"seeder\""])
+[Fx] BEFORE RUN	provide: fx.Annotate(pos/internal/adapters/driven/db.NewInMemoryAdapter(), fx.As([[inventory.ProductRepository] [orders.OrderRepository] [auth.UserRepository] [auth.RoleRepository]])
+[Fx] RUN	provide: fx.Annotate(pos/internal/adapters/driven/db.NewInMemoryAdapter(), fx.As([[inventory.ProductRepository] [orders.OrderRepository] [auth.UserRepository] [auth.RoleRepository]]) in 224.209µs
+[Fx] BEFORE RUN	provide: fx.Annotate(pos/internal/adapters/driven/payment.NewMockPaymentGateway(), fx.As([[orders.PaymentGateway]])
+[Fx] RUN	provide: fx.Annotate(pos/internal/adapters/driven/payment.NewMockPaymentGateway(), fx.As([[orders.PaymentGateway]]) in 26.209µs
+[Fx] BEFORE RUN	provide: fx.Annotate(pos/internal/modules/inventory.NewInventoryService(), fx.As([[inventory.InventoryService] [orders.InventoryServicePort]])
+[Fx] RUN	provide: fx.Annotate(pos/internal/modules/inventory.NewInventoryService(), fx.As([[inventory.InventoryService] [orders.InventoryServicePort]]) in 8.792µs
+[Fx] BEFORE RUN	provide: fx.Annotate(pos/internal/modules/orders.NewOrderService(), fx.As([[orders.OrderService]])
+[Fx] RUN	provide: fx.Annotate(pos/internal/modules/orders.NewOrderService(), fx.As([[orders.OrderService]]) in 6.083µs
+[Fx] BEFORE RUN	provide: pos/internal/modules/auth.NewAuthService()
+[Fx] RUN	provide: pos/internal/modules/auth.NewAuthService() in 3.25µs
+[Fx] BEFORE RUN	provide: main.main.func1()
+[Fx] RUN	provide: main.main.func1() in 2.083µs
+[Fx] BEFORE RUN	provide: pos/internal/adapters/driving/http.NewAuthMiddleware()
+[Fx] RUN	provide: pos/internal/adapters/driving/http.NewAuthMiddleware() in 20.875µs
+[Fx] BEFORE RUN	provide: pos/internal/adapters/driving/http.NewHTTPHandler()
+[Fx] RUN	provide: pos/internal/adapters/driving/http.NewHTTPHandler() in 2.75µs
+[Fx] BEFORE RUN	provide: main.main.func2()
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[Fx] RUN	provide: main.main.func2() in 56.542µs
+[Fx] BEFORE RUN	provide: fx.Annotate(pos/internal/adapters/driven/db.NewInMemoryAdapter(), fx.ResultTags(["name:\"seeder\""])
+[Fx] RUN	provide: fx.Annotate(pos/internal/adapters/driven/db.NewInMemoryAdapter(), fx.ResultTags(["name:\"seeder\""]) in 7.25µs
+2025/11/11 18:28:33 Seeding initial data...
+2025/11/11 18:28:33 🔄 Starting initial auth data seeding...
+2025/11/11 18:28:33 DB Adapter: Created permission Create Order
+2025/11/11 18:28:33 DB Adapter: Created permission Read Order
+2025/11/11 18:28:33 DB Adapter: Created permission Update Order
+2025/11/11 18:28:33 DB Adapter: Created permission Create Product
+2025/11/11 18:28:33 DB Adapter: Created permission Read Product
+2025/11/11 18:28:33 DB Adapter: Created permission Update Product
+2025/11/11 18:28:33 DB Adapter: Created permission Delete Product
+2025/11/11 18:28:33 DB Adapter: Created permission Create User
+2025/11/11 18:28:33 DB Adapter: Created permission Read User
+2025/11/11 18:28:33 DB Adapter: Created permission Update User
+2025/11/11 18:28:33 DB Adapter: Created role admin
+2025/11/11 18:28:33 DB Adapter: Created role manager
+2025/11/11 18:28:33 DB Adapter: Created role cashier
+2025/11/11 18:28:33 DB Adapter: Created role inventory_staff
+2025/11/11 18:28:33 DB Adapter: Created user admin (admin@pos.com)
+2025/11/11 18:28:33 ✅ Initial data seeding completed successfully
+2025/11/11 18:28:33 ✅ Initial data seeded successfully
+[GIN-debug] POST   /auth/login               --> pos/internal/adapters/driving/http.(*HTTPHandler).handleLogin-fm (3 handlers)
+[GIN-debug] POST   /auth/register            --> pos/internal/adapters/driving/http.(*HTTPHandler).handleRegister-fm (3 handlers)
+[GIN] 2025/11/11 - 18:29:52 | 401 |      40.833µs |             ::1 | GET      "/product/all"
+[GIN] 2025/11/11 - 18:30:00 | 401 |      29.375µs |             ::1 | POST     "/auth/login"
+[GIN] 2025/11/11 - 18:30:11 | 401 |      30.208µs |             ::1 | POST     "/auth/login"
+2025/11/11 18:30:20 DB Adapter: Created user testuser (test@example.com)
+[GIN] 2025/11/11 - 18:30:20 | 201 |   45.847041ms |             ::1 | POST     "/auth/register"
+[GIN] 2025/11/11 - 18:30:32 | 200 |    46.16775ms |             ::1 | POST     "/auth/login"
+[GIN] 2025/11/11 - 18:31:12 | 401 |      29.416µs |             ::1 | POST     "/auth/login"
+[GIN] 2025/11/11 - 18:32:23 | 401 |        45.5µs |             ::1 | POST     "/auth/login"
+dpoints:
+2025/11/11 18:28:33   POST /auth/login     (Login user)
+2025/11/11 18:28:33   POST /auth/register  (Register user)
+2025/11/11 18:28:33   POST /product/add    (See AddProductRequest)
+2025/11/11 18:28:33   GET  /product/get?id= (Returns Product)
+2025/11/11 18:28:33   GET  /product/all    (Returns []Product)
+2025/11/11 18:28:33   POST /order/create   (See CreateOrderRequest)
+2025/11/11 18:28:33   GET  /order/get?id=   (Returns Order)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN-debug] [ERROR] listen tcp :8080: bind: address already in use
+2025/11/11 18:28:33 Failed to start server: listen tcp :8080: bind: address already in use
+exit status 1
