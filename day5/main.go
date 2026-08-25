@@ -2,14 +2,33 @@ package main
 
 import "fmt"
 
-func minMax(a, b int) (int, int) {
-	if a < b {
-		return a, b
+// func half(n int) (result int, err bool) {
+// 	if n%2 != 0 {
+// 		err = false
+// 		return
+// 	} else {
+// 		result = n / 2
+// 		err = true
+// 		return
+// 	}
+// }
+
+// func main() {
+// 	fmt.Println(half(3))
+// }
+
+func clamp(n, lo, hi int) (result int) {
+	if n < lo {
+		result = lo
+		return
+	} else if n > hi {
+		result = hi
+		return
 	}
-	return b, a
+	return
 }
 
 func main() {
-	fmt.Println(minMax(4, 3))
-	fmt.Println(minMax(3, 4))
+	fmt.Println(clamp(15, 0, 10))
+	fmt.Println(clamp(-3, 0, 10))
 }
