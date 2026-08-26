@@ -55,19 +55,33 @@ import (
 // 	fmt.Println(maxOf(nums...))
 // }
 
-func join(sep string, parts ...string) string {
-	var sb strings.Builder
-	for i, str := range parts {
-		sb.WriteString(str)
-		if i < len(parts)-1 {
-			sb.WriteString(", ")
-		}
+// func join(sep string, parts ...string) string {
+// 	var sb strings.Builder
+// 	for i, str := range parts {
+// 		sb.WriteString(str)
+// 		if i < len(parts)-1 {
+// 			sb.WriteString(", ")
+// 		}
+// 	}
+// 	return sb.String()
+// }
+
+// func main() {
+// 	fmt.Println(join(", ", "a", "b", "c"))
+// 	n, _ := strconv.Atoi("42")
+// 	fmt.Println(n)
+// }
+
+func parseUser(line string) (name string, age int, err error) {
+	person := strings.Split(line, ",")
+	if len(person) < 2 {
+		return "", 0, fmt.Errorf("invalid input format")
 	}
-	return sb.String()
+	name = person[0]
+	age, err = strconv.Atoi(strings.TrimSpace(person[1]))
+	return
 }
 
 func main() {
-	fmt.Println(join(", ", "a", "b", "c"))
-	n, _ := strconv.Atoi("42")
-	fmt.Println(n)
+	fmt.Println(parseUser("Alice,30"))
 }
