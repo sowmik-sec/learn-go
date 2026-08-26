@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // func half(n int) (result int, err bool) {
 // 	if n%2 != 0 {
@@ -52,12 +55,14 @@ import "fmt"
 // }
 
 func join(sep string, parts ...string) string {
-	ans := ""
-	ans += sep
-	for _, str := range parts {
-		ans += str
+	var sb strings.Builder
+	for i, str := range parts {
+		sb.WriteString(str)
+		if i < len(parts)-1 {
+			sb.WriteString(", ")
+		}
 	}
-	return ans
+	return sb.String()
 }
 
 func main() {
