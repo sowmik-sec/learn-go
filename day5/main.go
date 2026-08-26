@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -67,4 +68,6 @@ func join(sep string, parts ...string) string {
 
 func main() {
 	fmt.Println(join(", ", "a", "b", "c"))
+	n, _ := strconv.Atoi("42")
+	fmt.Println(n)
 }
