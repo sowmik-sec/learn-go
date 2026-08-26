@@ -33,20 +33,33 @@ import "fmt"
 // 	fmt.Println(clamp(-3, 0, 10))
 // }
 
-func maxOf(nums ...int) int {
-	max := -11111111
-	for _, val := range nums {
-		if val > max {
-			max = val
-		}
+// func maxOf(nums ...int) int {
+// 	max := -11111111
+// 	for _, val := range nums {
+// 		if val > max {
+// 			max = val
+// 		}
+// 	}
+// 	if max == -11111111 {
+// 		return 0
+// 	}
+// 	return max
+// }
+
+// func main() {
+// 	nums := []int{4, 1, 9, 3}
+// 	fmt.Println(maxOf(nums...))
+// }
+
+func join(sep string, parts ...string) string {
+	ans := ""
+	ans += sep
+	for _, str := range parts {
+		ans += str
 	}
-	if max == -11111111 {
-		return 0
-	}
-	return max
+	return ans
 }
 
 func main() {
-	nums := []int{4, 1, 9, 3}
-	fmt.Println(maxOf(nums...))
+	fmt.Println(join(", ", "a", "b", "c"))
 }
