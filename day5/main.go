@@ -1,7 +1,3 @@
-package main
-
-import "fmt"
-
 // func half(n int) (result int, err bool) {
 // 	if n%2 != 0 {
 // 		err = false
@@ -106,19 +102,39 @@ import "fmt"
 // 	fmt.Println(op(2, 3))
 // }
 
-func apply(f func(int) int, nums []int) []int {
-	newNums := make([]int, len(nums))
-	for i, n := range nums {
-		newNums[i] = f(n)
-	}
-	return newNums
+// func apply(f func(int) int, nums []int) []int {
+// 	newNums := make([]int, len(nums))
+// 	for i, n := range nums {
+// 		newNums[i] = f(n)
+// 	}
+// 	return newNums
+// }
+
+// func main() {
+// 	square := func(x int) int {
+// 		return x * x
+// 	}
+// 	nums := []int{1, 2, 3, 4}
+// 	result := apply(square, nums)
+// 	fmt.Println(result)
+// }
+
+package main
+
+import "fmt"
+
+var a, _ = fmt.Println("var a")
+
+func init() {
+	fmt.Println("init 1")
+}
+
+var b, _ = fmt.Println("var b")
+
+func init() {
+	fmt.Println("init 2")
 }
 
 func main() {
-	square := func(x int) int {
-		return x * x
-	}
-	nums := []int{1, 2, 3, 4}
-	result := apply(square, nums)
-	fmt.Println(result)
+	fmt.Println("main")
 }
