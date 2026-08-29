@@ -82,15 +82,26 @@ import "fmt"
 // 	fmt.Println(parseUser("Alice,30"))
 // }
 
-func makeAdder(x int) func(int) int {
-	return func(i int) int {
-		return x + i
+// func makeAdder(x int) func(int) int {
+// 	return func(i int) int {
+// 		return x + i
+// 	}
+// }
+
+// func main() {
+// 	add5 := makeAdder(5)
+// 	add10 := makeAdder(10)
+// 	fmt.Println(add5(3))
+// 	fmt.Println(add10(3))
+// }
+
+func f() func(x, y int) int {
+	return func(x, y int) int {
+		return x + y
 	}
 }
 
 func main() {
-	add5 := makeAdder(5)
-	add10 := makeAdder(10)
-	fmt.Println(add5(3))
-	fmt.Println(add10(3))
+	op := f()
+	fmt.Println(op(2, 3))
 }
