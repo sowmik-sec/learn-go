@@ -95,13 +95,30 @@ import "fmt"
 // 	fmt.Println(add10(3))
 // }
 
-func f() func(x, y int) int {
-	return func(x, y int) int {
-		return x + y
+// func f() func(x, y int) int {
+// 	return func(x, y int) int {
+// 		return x + y
+// 	}
+// }
+
+// func main() {
+// 	op := f()
+// 	fmt.Println(op(2, 3))
+// }
+
+func apply(f func(int) int, nums []int) []int {
+	newNums := make([]int, len(nums))
+	for i, n := range nums {
+		newNums[i] = f(n)
 	}
+	return newNums
 }
 
 func main() {
-	op := f()
-	fmt.Println(op(2, 3))
+	square := func(x int) int {
+		return x * x
+	}
+	nums := []int{1, 2, 3, 4}
+	result := apply(square, nums)
+	fmt.Println(result)
 }
