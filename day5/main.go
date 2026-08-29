@@ -1,11 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"strconv"
-	"strings"
-)
-
 // func half(n int) (result int, err bool) {
 // 	if n%2 != 0 {
 // 		err = false
@@ -72,16 +66,16 @@ import (
 // 	fmt.Println(n)
 // }
 
-func parseUser(line string) (name string, age int, err error) {
-	person := strings.Split(line, ",")
-	if len(person) < 2 {
-		return "", 0, fmt.Errorf("invalid input format")
-	}
-	name = person[0]
-	age, err = strconv.Atoi(strings.TrimSpace(person[1]))
-	return
-}
+// func parseUser(line string) (name string, age int, err error) {
+// 	person := strings.Split(line, ",")
+// 	if len(person) < 2 {
+// 		return "", 0, fmt.Errorf("invalid input format")
+// 	}
+// 	name = person[0]
+// 	age, err = strconv.Atoi(strings.TrimSpace(person[1]))
+// 	return
+// }
 
-func main() {
-	fmt.Println(parseUser("Alice,30"))
-}
+// func main() {
+// 	fmt.Println(parseUser("Alice,30"))
+// }
