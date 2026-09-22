@@ -1,27 +1,17 @@
 package main
 
-import (
-	"errors"
-	"fmt"
-)
+import "fmt"
 
-func divide(a, b int) (int, error) {
-	if b == 0 {
-		return 0, errors.New("B must not be 0")
+func sum(nums ...int) int {
+	sum := 0
+	for _, n := range nums {
+		sum += n
 	}
-	return a / b, nil
+	return sum
 }
 
 func main() {
-
-	result1, err := divide(10, 2)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(result1)
-	result2, err := divide(10, 0)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(result2)
+	fmt.Println(sum(1, 2, 3, 4))
+	numbers := []int{1, 2, 3, 4}
+	fmt.Println(sum(numbers...))
 }
