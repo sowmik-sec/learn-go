@@ -1,14 +1,27 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-func minMax(a, b int) (int, int) {
-	if a < b {
-		return a, b
+func divide(a, b int) (int, error) {
+	if b == 0 {
+		return 0, errors.New("B must not be 0")
 	}
-	return b, a
+	return a / b, nil
 }
 
 func main() {
-	fmt.Println(minMax(4, 10))
+
+	result1, err := divide(10, 2)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(result1)
+	result2, err := divide(10, 0)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(result2)
 }
