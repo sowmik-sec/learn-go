@@ -2,10 +2,13 @@ package main
 
 import "fmt"
 
-func multiply(a, b int) int {
-	return a * b
+func minMax(a, b int) (int, int) {
+	if a < b {
+		return a, b
+	}
+	return b, a
 }
 
 func main() {
-	fmt.Println(multiply(6, 7))
+	fmt.Println(minMax(4, 10))
 }
